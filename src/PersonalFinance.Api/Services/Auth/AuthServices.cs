@@ -12,15 +12,14 @@ public class AuthServices : IAuthServices
         _context = context;
     }
 
-    public static string ConvertToHash(string password)
+    private string ConvertToHash(string password)
     {
-        string hash = BCrypt.Net.BCrypt.HashPassword(password);
-
-        return hash;
+        return BCrypt.Net.BCrypt.HashPassword(password);
     }
 
-    public async Task<User> AddUser(User user)
+    public async Task<User> AddUser(User user, string password)
     {
+        user.HashPassword = ConvertToHash(password);
         await _context.AddAsync(user);
         await _context.SaveChangesAsync();
 

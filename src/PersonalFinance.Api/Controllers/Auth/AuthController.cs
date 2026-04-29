@@ -4,6 +4,7 @@ using PersonalFinance.Api.DTOs.User;
 using PersonalFinance.Api.Models.User;
 using Microsoft.AspNetCore.Mvc;
 
+
 namespace PersonalFinance.Api.Controllers.Auth;
 
 
@@ -26,10 +27,9 @@ public class AuthController : ControllerBase
         {
             UserName = dto.UserName,
             Email = dto.Email,
-            HashPassword = dto.Password
         };
 
-        var registerUser = await _authServices.AddUser(user);
-        return Created();
+        var registerUser = await _authServices.AddUser(user, dto.Password);
+        return Created("", registerUser);
     }
 }

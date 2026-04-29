@@ -21,6 +21,8 @@ public class Goal
     [Key]
     public int ID { get; set; }
 
+    public int UserId { get ; set; }
+
     [Required]
     [MaxLength(100)]    
     public string Title { get; set; } = string.Empty; // Meta financeira
