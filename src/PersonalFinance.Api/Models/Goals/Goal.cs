@@ -14,7 +14,6 @@ namespace PersonalFinance.Api.Models.Goals;
 /// <item><description>A data <see cref="CreatedAt"/> deve ser sempre registrada em formato UTC para evitar conflitos de fuso horário.</description></item>
 /// </list>
 /// </remarks>
-/// 
 
 public class Goal
 {

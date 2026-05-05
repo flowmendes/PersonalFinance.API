@@ -39,12 +39,12 @@ public class AuthController : ControllerBase
     [HttpPost("login")]
     public async Task<IActionResult> Login(string email, string password)
     {
-        var validateLogin = await _authServices.Login(email, password);
+        var token = await _authServices.Login(email, password);
 
-        if (validateLogin == null)
-        return NotFound();
+        if (token == null)
+            return NotFound();
 
-        return Ok("approved");
+        return Ok(new { token });
     }
 
     [HttpGet("{id}")]

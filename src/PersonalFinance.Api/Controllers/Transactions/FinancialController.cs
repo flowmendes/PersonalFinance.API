@@ -3,13 +3,14 @@ using PersonalFinance.Api.DTOs.Transactions;
 using PersonalFinance.Api.Services.Transactions;
 using Microsoft.AspNetCore.Mvc;
 using PersonalFinance.Api.Data;
+using Microsoft.AspNetCore.Authorization;
 
 namespace PersonalFinance.Api.Controllers.Transactions;
 
 /// <summary>
 /// Controller responsável por gerenciar as transações financeiras da API.
 /// </summary>
-
+[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class FinancialController : ControllerBase

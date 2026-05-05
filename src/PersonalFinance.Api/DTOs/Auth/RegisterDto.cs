@@ -1,10 +1,9 @@
-
 using System.ComponentModel.DataAnnotations;
 
 namespace PersonalFinance.Api.DTOs.Auth;
 
-public class CreateUserDto{
-
+public class CreateUserDto
+{
     [Required]
     [StringLength(40, MinimumLength = 1)]
     public string UserName { get; set; } = string.Empty;

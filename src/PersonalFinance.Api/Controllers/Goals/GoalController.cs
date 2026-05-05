@@ -3,13 +3,14 @@ using PersonalFinance.Api.Models.Goals;
 using Microsoft.AspNetCore.Mvc;
 using PersonalFinance.Api.Data;
 using PersonalFinance.Api.Services.Goals;
+using Microsoft.AspNetCore.Authorization;
 
 namespace PersonalFinance.Api.Controllers.Goals;
 
 /// <summary>
 /// Controller responsável por gerenciar as metas financeiras da API.
 /// </summary>
-
+[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class GoalController : ControllerBase
