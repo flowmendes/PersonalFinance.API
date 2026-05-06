@@ -19,6 +19,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddScoped<IAuthServices, AuthServices>();
 builder.Services.AddScoped<IGoalServices, GoalServices>();
 builder.Services.AddScoped<IFinancialService, FinancialService>();
+builder.Services.AddHttpContextAccessor();
+
 
 // Configuração do DbContext
 builder.Services.AddDbContext<AppDbContext>(options =>

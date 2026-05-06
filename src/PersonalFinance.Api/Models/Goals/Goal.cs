@@ -20,7 +20,7 @@ public class Goal
     [Key]
     public int ID { get; set; }
 
-    public int UserId { get ; set; }
+    public String UserId { get ; set; } = string.Empty;
 
     [Required]
     [MaxLength(100)]    

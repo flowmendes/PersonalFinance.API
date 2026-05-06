@@ -4,16 +4,23 @@ using Microsoft.EntityFrameworkCore;
 using PersonalFinance.Api.Data;
 using PersonalFinance.Api.Models.Transactions;
 using System.Data;
+using BCrypt.Net;
+using PersonalFinance.Api.Models.Users;
+using System.Security.Claims;
+
 
 namespace PersonalFinance.Api.Services.Goals;
 
 public class GoalServices : IGoalServices
 {
     private readonly AppDbContext _context;
+    private readonly string? _userId;
 
-    public GoalServices(AppDbContext context)
+    public GoalServices(AppDbContext context, IHttpContextAccessor httpContextAccessor)
     {
         _context = context;
+
+        _userId = httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
     }
 
 
@@ -21,11 +28,27 @@ public class GoalServices : IGoalServices
     /// Adiciona meta ao banco de dados
     /// </summary>
 
-    public async Task<Goal> AddGoal(Goal goal)
+    public async Task<Goal> AddGoal(CreateGoalDto dto)
     {
-        _context.Goals.Add(goal);
+        if (string.IsNullOrEmpty(_userId))
+        {
+            throw new UnauthorizedAccessException("Unidentified user");
+        }
+
+        var createGoal = new Goal
+        {
+            UserId = _userId,
+            Title = dto.Title,
+            TargetAmount = dto.TargetAmount,
+            Deadline = dto.DeadLine,
+            Type = dto.Type,
+            CreatedAt = DateTime.UtcNow
+        };
+
+        _context.Goals.Add(createGoal);
         await _context.SaveChangesAsync();
-        return goal;
+
+        return createGoal;
     }
 
     /// <summary>

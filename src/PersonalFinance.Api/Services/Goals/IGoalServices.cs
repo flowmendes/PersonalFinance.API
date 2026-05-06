@@ -4,7 +4,7 @@ using PersonalFinance.Api.DTOs.Goals;
 namespace PersonalFinance.Api.Services.Goals;
 public interface IGoalServices
 {
-    Task<Goal> AddGoal(Goal goal);
+    Task<Goal> AddGoal(CreateGoalDto dto);
     Task<List<ProgressGoalDto>> GetAllGoals();
     Task<ProgressGoalDto> GetGoalProgresById(int id);
     Task<bool> DeleteGoal(int id);

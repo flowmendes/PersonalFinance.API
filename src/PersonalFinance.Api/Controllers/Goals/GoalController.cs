@@ -72,17 +72,8 @@ public class GoalController : ControllerBase
     [HttpPost("goal")]
     public async Task<IActionResult> PostGoal(CreateGoalDto dto)
     {
-        
-        var goal = new Goal
-        {
-            Title = dto.Title,
-            TargetAmount = dto.TargetAmount,
-            Deadline = dto.DeadLine,
-            Type = dto.Type,
-            CreatedAt = DateTime.UtcNow
-        };
+        var createdGoal = await _goalService.AddGoal(dto);
 
-        var createdGoal = await _goalService.AddGoal(goal);
         return Created("", createdGoal);
     }
 

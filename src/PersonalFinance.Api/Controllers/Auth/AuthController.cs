@@ -26,21 +26,16 @@ public class AuthController : ControllerBase
     [HttpPost("register")]
     public async Task<IActionResult> RegisterUser(CreateUserDto dto)
     {
-        var user = new User
-        {
-            UserName = dto.UserName,
-            Email = dto.Email,
-        };
+        var createUser = await _authServices.RegisterUser(dto);
 
-        var registerUser = await _authServices.RegisterUser(user, dto.Password);
-        return Created("", registerUser);
+        return Created("", createUser);
     }
 
     [HttpPost("login")]
     public async Task<IActionResult> Login(string email, string password)
     {
         var token = await _authServices.Login(email, password);
-
+        
         if (token == null)
             return NotFound();
 

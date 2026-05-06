@@ -2,16 +2,21 @@ using PersonalFinance.Api.Models.Transactions;
 using PersonalFinance.Api.DTOs.Transactions;
 using PersonalFinance.Api.Data;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
+
 
 namespace PersonalFinance.Api.Services.Transactions;
 
 public class FinancialService : IFinancialService
 {
     private readonly AppDbContext _context;
+    private readonly string? _userId;
 
-    public FinancialService(AppDbContext context)
+    public FinancialService(AppDbContext context, IHttpContextAccessor httpContextAccessor)
     {
         _context = context;
+
+        _userId = httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
     }
     
 
@@ -19,10 +24,26 @@ public class FinancialService : IFinancialService
     /// Adiciona transação ao banco de dados
     /// </summary>
 
-    public async Task AddTransaction(Transaction transaction)
+    public async Task<Transaction> AddTransaction(CreateTransactionDto dto)
     {
-        await _context.Transactions.AddAsync(transaction);
+        if (string.IsNullOrEmpty(_userId))
+        {
+            throw new UnauthorizedAccessException("Unidentified user");
+        }
+
+        var createTransaction = new Transaction
+        {
+            UserId = _userId,
+            Description = dto.Description,
+            Amount = dto.Amount,
+            Type = dto.Type,
+            CreateAt = DateTime.UtcNow
+        };
+
+        await _context.Transactions.AddAsync(createTransaction);
         await _context.SaveChangesAsync();
+
+        return createTransaction;
     }
 
     /// <summary>

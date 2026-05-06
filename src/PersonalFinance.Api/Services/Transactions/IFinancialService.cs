@@ -6,7 +6,7 @@ namespace PersonalFinance.Api.Services.Transactions;
 
 public interface IFinancialService
 {
-    Task AddTransaction(Transaction transaction);
+    Task<Transaction> AddTransaction(CreateTransactionDto dto);
     Task SeedData(AppDbContext context);
     Task<List<Transaction>> GetAllTransactions(
         DateTime? startDate = null,

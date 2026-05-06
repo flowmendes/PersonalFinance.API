@@ -8,22 +8,28 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.Text;
+using Microsoft.AspNetCore.Http;
+using PersonalFinance.Api.DTOs.Auth;
 
 namespace PersonalFinance.Api.Services.Auth;
 
 public class AuthServices : IAuthServices
 {
     private readonly AppDbContext _context;
-    public AuthServices(AppDbContext context)
+    private readonly string? _userId;
+
+    public AuthServices(AppDbContext context, IHttpContextAccessor httpContextAccessor)
     {
         _context = context;
+
+        _userId = httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
     }
 
     /// <summary>
     /// Converete a senha em hash
     /// </summary>
     
-    private string ConvertToHash(string password)
+    private static string ConvertToHash(string password)
     {
         return BCrypt.Net.BCrypt.HashPassword(password);
     }
@@ -32,13 +38,22 @@ public class AuthServices : IAuthServices
     /// Registra novo usuario
     /// </summary>
 
-    public async Task<User> RegisterUser(User user, string password)
+    public async Task<User> RegisterUser(CreateUserDto dto)
     {
-        user.HashPassword = ConvertToHash(password);
-        _context.Users.Add(user);
+        var guid = Guid.NewGuid().ToString();
+
+        var createUser = new User
+        {
+            UserId = guid,
+            UserName = dto.UserName,
+            Email = dto.Email,
+            HashPassword = ConvertToHash(dto.Password)
+        };
+
+        _context.Users.Add(createUser);
         await _context.SaveChangesAsync();
 
-        return user;
+        return createUser;
     }
 
     /// <summary>
@@ -58,12 +73,12 @@ public class AuthServices : IAuthServices
         if (!isPasswordValid)
             return null;
         
-        var token = GenerateToken(user.Email, user.Id);
+        var token = GenerateToken(user.Email, user.UserId);
 
         return token;
     }
 
-    public string GenerateToken(string email, int userId)
+    public string GenerateToken(string email, string userId)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
 
@@ -74,7 +89,7 @@ public class AuthServices : IAuthServices
             Subject = new ClaimsIdentity(new Claim[]
             {
                 new Claim(ClaimTypes.Email, email),
-                new Claim(ClaimTypes.NameIdentifier, userId.ToString())
+                new Claim(ClaimTypes.NameIdentifier, userId)
             }),
             Expires = DateTime.UtcNow.AddHours(3),
             SigningCredentials = new SigningCredentials(

@@ -96,17 +96,9 @@ public class FinancialController : ControllerBase
     [HttpPost("transaction")]
     public async Task<IActionResult> PostTransaction(CreateTransactionDto dto)
     {
-        var transaction = new Transaction
-        {
-            Description = dto.Description,
-            Amount = dto.Amount,
-            Type = dto.Type,
-            CreateAt = DateTime.UtcNow
-        };
+        var created = await _service.AddTransaction(dto);
 
-        await _service.AddTransaction(transaction);
-
-        return Created("", transaction);
+        return Created("", created);
     }
 
     [HttpPost("seed")]
