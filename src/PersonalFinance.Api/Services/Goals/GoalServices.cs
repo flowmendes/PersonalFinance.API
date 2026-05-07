@@ -97,7 +97,9 @@ public class GoalServices : IGoalServices
     
     public async Task<List<ProgressGoalDto>> GetAllGoals()
     {
-        var goals = await _context.Goals.ToListAsync();
+        var goals = await _context.Goals
+            .Where(g => g.UserId == _userId)
+            .ToListAsync();
 
         var tasks = goals.Select(async g => await GetGoalProgresById(g.ID));
 
