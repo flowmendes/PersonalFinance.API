@@ -148,6 +148,7 @@ public class GoalServices : IGoalServices
     public async Task<List<Transaction>> GetGoalTransactions(Goal goal)
     {
         return await _context.Transactions
+            .Where(t => t.UserId == _userId)
             .Where(t => t.CreateAt >= goal.CreatedAt.Date)
             .Where(t => t.CreateAt <= goal.Deadline.Date)
             .ToListAsync();

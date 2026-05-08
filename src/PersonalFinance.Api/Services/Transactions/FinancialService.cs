@@ -4,7 +4,6 @@ using PersonalFinance.Api.Data;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
-
 namespace PersonalFinance.Api.Services.Transactions;
 
 public class FinancialService : IFinancialService
@@ -80,9 +79,10 @@ public class FinancialService : IFinancialService
         var transaction = await _context.Transactions.FindAsync(id);
 
         if (transaction == null)
-        {
             return false;
-        }
+
+        if (transaction.UserId != _userId)
+            return false;
 
         transaction.Description = dto.Description;
         transaction.Amount = dto.Amount;
@@ -123,7 +123,9 @@ public class FinancialService : IFinancialService
         int pageNumber = 1,
         int pageSize = 10)
     {
-        var query = _context.Transactions.AsQueryable();
+        var query = _context.Transactions
+        .Where(t => t.UserId == _userId)
+        .AsQueryable();
 
         // Aplica filtro por data inicial (>=)
         if (startDate.HasValue)

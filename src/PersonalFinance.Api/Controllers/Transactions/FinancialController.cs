@@ -93,7 +93,9 @@ public class FinancialController : ControllerBase
     /// Adiciona uma nova transação financeira.
     /// </summary>
 
-    [HttpPost("transaction")]
+    [HttpPost("{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> PostTransaction(CreateTransactionDto dto)
     {
         var created = await _service.AddTransaction(dto);
