@@ -118,6 +118,9 @@ public class GoalServices : IGoalServices
 
         if (goal == null)
             throw new KeyNotFoundException("Goal not found");
+            
+        if (goal.UserId != _userId)
+            throw new KeyNotFoundException("Goal not found");
 
         var goalBalance = await GetGoalNetBalance(goal);
         decimal progressPercentage = 0;
