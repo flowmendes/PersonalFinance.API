@@ -103,6 +103,9 @@ public class FinancialService : IFinancialService
 
         if (transaction == null)
             return false;
+        
+        if (transaction.UserId != _userId)
+            return false;
 
         _context.Transactions.Remove(transaction);
         await _context.SaveChangesAsync();
