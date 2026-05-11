@@ -78,10 +78,7 @@ public class FinancialService : IFinancialService
     {
         var transaction = await _context.Transactions.FindAsync(id);
 
-        if (transaction == null)
-            return false;
-
-        if (transaction.UserId != _userId)
+        if (transaction == null || transaction.UserId != _userId)
             return false;
 
         transaction.Description = dto.Description;
