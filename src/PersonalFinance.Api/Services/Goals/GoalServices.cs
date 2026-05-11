@@ -1,12 +1,12 @@
+using PersonalFinance.Api.Models.Transactions;
 using PersonalFinance.Api.Models.Goals;
+using PersonalFinance.Api.Models.Users;
 using PersonalFinance.Api.DTOs.Goals;
 using Microsoft.EntityFrameworkCore;
 using PersonalFinance.Api.Data;
-using PersonalFinance.Api.Models.Transactions;
+using System.Security.Claims;
 using System.Data;
 using BCrypt.Net;
-using PersonalFinance.Api.Models.Users;
-using System.Security.Claims;
 
 
 namespace PersonalFinance.Api.Services.Goals;
@@ -28,13 +28,11 @@ public class GoalServices : IGoalServices
     /// Adiciona meta ao banco de dados
     /// </summary>
 
-    public async Task<Goal> AddGoal(CreateGoalDto dto)
+    public async Task<Goal?> AddGoal(CreateGoalDto dto)
     {
         if (string.IsNullOrEmpty(_userId))
-        {
-            throw new UnauthorizedAccessException("Unidentified user");
-        }
-
+            return null;
+        
         var createGoal = new Goal
         {
             UserId = _userId,
@@ -59,11 +57,9 @@ public class GoalServices : IGoalServices
     {
         var goal = await _context.Goals.FindAsync(id);
 
-        if (goal == null)
-        {
+        if (goal == null || goal.UserId != _userId) 
             return false;
-        }
-
+        
         goal.Title = dto.Title;
         goal.TargetAmount = dto.TargetAmount;
         goal.Deadline = dto.DeadLine;
@@ -82,7 +78,7 @@ public class GoalServices : IGoalServices
     {
         var goal = await _context.Goals.FindAsync(id);
 
-        if (goal == null) 
+        if (goal == null || goal.UserId != _userId) 
             return false;
 
         _context.Goals.Remove(goal);
@@ -95,12 +91,12 @@ public class GoalServices : IGoalServices
     /// Retorna a lista completa de metas:
     /// </summary>
     
-    public async Task<List<ProgressGoalDto>> GetAllGoals()
+    public async Task<List<ProgressGoalDto?>> GetAllGoals()
     {
         var goals = await _context.Goals
             .Where(g => g.UserId == _userId)
             .ToListAsync();
-
+        
         var tasks = goals.Select(async g => await GetGoalProgresById(g.ID));
 
         var results = await Task.WhenAll(tasks);
@@ -112,15 +108,12 @@ public class GoalServices : IGoalServices
     /// Retorna uma meta filtrada por ID.
     /// </summary>
     
-    public async Task<ProgressGoalDto> GetGoalProgresById(int id)
+    public async Task<ProgressGoalDto?> GetGoalProgresById(int id)
     {    
         var goal = await _context.Goals.FindAsync(id);
 
-        if (goal == null)
-            throw new KeyNotFoundException("Goal not found");
-            
-        if (goal.UserId != _userId)
-            throw new KeyNotFoundException("Goal not found");
+        if (goal == null || goal.UserId != _userId) 
+            return null;
 
         var goalBalance = await GetGoalNetBalance(goal);
         decimal progressPercentage = 0;
@@ -131,7 +124,6 @@ public class GoalServices : IGoalServices
 
             progressPercentage = Math.Clamp(actualPercentage, 0m, 100m);
         }
-
 
         return new ProgressGoalDto
         {

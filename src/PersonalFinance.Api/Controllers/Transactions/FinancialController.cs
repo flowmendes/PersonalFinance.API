@@ -1,9 +1,8 @@
-using PersonalFinance.Api.Models.Transactions;
-using PersonalFinance.Api.DTOs.Transactions;
 using PersonalFinance.Api.Services.Transactions;
+using PersonalFinance.Api.DTOs.Transactions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PersonalFinance.Api.Data;
-using Microsoft.AspNetCore.Authorization;
 
 namespace PersonalFinance.Api.Controllers.Transactions;
 

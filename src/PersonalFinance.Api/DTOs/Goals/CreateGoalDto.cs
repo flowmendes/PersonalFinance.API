@@ -1,5 +1,5 @@
-using PersonalFinance.Api.Models.Goals;
 using System.ComponentModel.DataAnnotations;
+using PersonalFinance.Api.Models.Goals;
 
 namespace PersonalFinance.Api.DTOs.Goals;
 

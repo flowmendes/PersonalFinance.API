@@ -1,5 +1,5 @@
-using PersonalFinance.Api.Models.Goals;
 using PersonalFinance.Api.Models.Transactions;
+using PersonalFinance.Api.Models.Goals;
 using PersonalFinance.Api.Models.Users;
 
 using Microsoft.EntityFrameworkCore;

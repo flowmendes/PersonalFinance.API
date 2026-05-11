@@ -1,7 +1,5 @@
-using PersonalFinance.Api.Data;
 using PersonalFinance.Api.Services.Auth;
 using PersonalFinance.Api.DTOs.Auth;
-using PersonalFinance.Api.Models.Users;
 using Microsoft.AspNetCore.Mvc;
 
 namespace PersonalFinance.Api.Controllers.Auth;
@@ -15,12 +13,10 @@ namespace PersonalFinance.Api.Controllers.Auth;
 public class AuthController : ControllerBase
 {
     private readonly IAuthServices _authServices;
-    private readonly AppDbContext _context;
 
-    public AuthController(IAuthServices authServices, AppDbContext context)
+    public AuthController(IAuthServices authServices)
     {
         _authServices = authServices;
-        _context = context;
     }
 
     [HttpPost("register")]

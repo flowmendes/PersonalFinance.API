@@ -1,7 +1,7 @@
 using PersonalFinance.Api.Models.Transactions;
 using PersonalFinance.Api.DTOs.Transactions;
-using PersonalFinance.Api.Data;
 using Microsoft.EntityFrameworkCore;
+using PersonalFinance.Api.Data;
 using System.Security.Claims;
 
 namespace PersonalFinance.Api.Services.Transactions;

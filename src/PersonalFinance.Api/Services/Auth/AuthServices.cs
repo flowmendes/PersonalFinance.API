@@ -1,15 +1,15 @@
-using BCrypt.Net;
-using PersonalFinance.Api.Models.Users;
-using PersonalFinance.Api.Data;
-using Microsoft.EntityFrameworkCore;
-using System.Security.Claims;
-using System.IdentityModel.Tokens.Jwt;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using System.Text;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using PersonalFinance.Api.Models.Users;
+using System.IdentityModel.Tokens.Jwt;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.EntityFrameworkCore;
 using PersonalFinance.Api.DTOs.Auth;
+using Microsoft.AspNetCore.Http;
+using PersonalFinance.Api.Data;
+using System.Security.Claims;
+using System.Text;
+using BCrypt.Net;
 
 namespace PersonalFinance.Api.Services.Auth;
 

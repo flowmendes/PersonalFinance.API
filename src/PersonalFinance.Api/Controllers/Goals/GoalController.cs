@@ -1,9 +1,7 @@
-using PersonalFinance.Api.DTOs.Goals;
-using PersonalFinance.Api.Models.Goals;
-using Microsoft.AspNetCore.Mvc;
-using PersonalFinance.Api.Data;
 using PersonalFinance.Api.Services.Goals;
 using Microsoft.AspNetCore.Authorization;
+using PersonalFinance.Api.DTOs.Goals;
+using Microsoft.AspNetCore.Mvc;
 
 namespace PersonalFinance.Api.Controllers.Goals;
 
@@ -16,14 +14,11 @@ namespace PersonalFinance.Api.Controllers.Goals;
 public class GoalController : ControllerBase
 {
     private readonly IGoalServices _goalService;
-    private readonly AppDbContext _context;
 
-    public GoalController(IGoalServices goalServices, AppDbContext context)
+    public GoalController(IGoalServices goalServices)
     {
         _goalService = goalServices;
-        _context = context;
     }
-
 
     /// <summary>
     /// Retorna todas as metas criadas
@@ -33,6 +28,7 @@ public class GoalController : ControllerBase
     public async Task<IActionResult> GetAllGoal()
     {
         var goalHistrory = await _goalService.GetAllGoals();
+
         return Ok(goalHistrory);
     }
 
@@ -45,6 +41,9 @@ public class GoalController : ControllerBase
     {
         var goal = await _goalService.GetGoalProgresById(id);
 
+        if (goal == null)
+            return NotFound();
+
         return Ok(goal);
     }
 
@@ -52,16 +51,14 @@ public class GoalController : ControllerBase
     /// Atualiza uma meta existente pelo ID.
     /// </summary>
     
-    [HttpPut]
+    [HttpPut("{id}")]
     public async Task<IActionResult> PutGoal(int id, UpdateGoalDto dto)
     {
         var goal = await _goalService.PutGoal(id, dto);
 
-        if (!goal)
-        {
+        if (goal == false)
             return NotFound();
-        }
-
+        
         return NoContent();
     }
 
@@ -73,6 +70,9 @@ public class GoalController : ControllerBase
     public async Task<IActionResult> PostGoal(CreateGoalDto dto)
     {
         var createdGoal = await _goalService.AddGoal(dto);
+
+        if (createdGoal == null)
+            return BadRequest("Não foi possível criar a meta.");
 
         return Created("", createdGoal);
     }
@@ -86,7 +86,7 @@ public class GoalController : ControllerBase
     {
         var deleted = await _goalService.DeleteGoal(id);
 
-        if(!deleted)
+        if(deleted == false)
             return NotFound();
 
         return NoContent();

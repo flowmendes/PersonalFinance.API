@@ -1,5 +1,5 @@
-using PersonalFinance.Api.DTOs.Auth;
 using PersonalFinance.Api.Models.Users;
+using PersonalFinance.Api.DTOs.Auth;
 
 namespace PersonalFinance.Api.Services.Auth;
 

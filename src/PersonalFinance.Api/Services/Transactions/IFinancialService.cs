@@ -1,6 +1,6 @@
-using PersonalFinance.Api.Data;
 using PersonalFinance.Api.Models.Transactions;
 using PersonalFinance.Api.DTOs.Transactions;
+using PersonalFinance.Api.Data;
 
 namespace PersonalFinance.Api.Services.Transactions;
 

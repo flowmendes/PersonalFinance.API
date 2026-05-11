@@ -1,12 +1,12 @@
-using PersonalFinance.Api.Data;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using PersonalFinance.Api.Services.Transactions;
 using PersonalFinance.Api.Services.Goals;
 using PersonalFinance.Api.Services.Auth;
-using PersonalFinance.Api.Services.Transactions;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using System.Text;
+using Microsoft.EntityFrameworkCore;
+using PersonalFinance.Api.Data;
 using Microsoft.OpenApi.Models;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
