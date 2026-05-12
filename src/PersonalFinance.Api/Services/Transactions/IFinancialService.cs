@@ -18,7 +18,7 @@ public interface IFinancialService
     Task<Transaction?> GetTransactionById(int id);
     Task<FinancialSummaryDto> GetFinancialSumarry();
     Task<decimal> GetCurrentBalance();
-    decimal GetBiggestValue();
+    Task<decimal> GetBiggestValue();
     Task<bool> DeleteTransaction(int id);
     Task<bool> PutTransaction(int id, UpdateTransactionDto dto);
 }

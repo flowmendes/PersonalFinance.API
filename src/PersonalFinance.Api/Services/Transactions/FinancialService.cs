@@ -186,6 +186,7 @@ public class FinancialService : IFinancialService
     public async Task<decimal> GetCurrentBalance()
     {
         var result = await _context.Transactions
+            .Where(g => g.UserId == _userId)
             .GroupBy(t => t.Type)
             .Select(g => new {
                 Type = g.Key,
@@ -203,7 +204,7 @@ public class FinancialService : IFinancialService
     /// Retorna o maior valor entre as despesas.
     /// </summary>
     
-    public decimal GetBiggestValue()
+    public async Task<decimal> GetBiggestValue()
     {
         var biggestValue = _context.Transactions.Where(t => t.Type == TransactionType.Expense).Max (t => (decimal?)t.Amount) ?? 0;
         
@@ -216,7 +217,12 @@ public class FinancialService : IFinancialService
     
     public async Task<Transaction?> GetTransactionById(int id)
     {
-        return _context.Transactions.Find(id);
+        var result = _context.Transactions.Find(id);
+
+        if (result == null || result.UserId != _userId)
+            return null;
+        
+        return result;
     }
 
     /// <summary>
@@ -225,15 +231,24 @@ public class FinancialService : IFinancialService
     
     public async Task<FinancialSummaryDto> GetFinancialSumarry()
     {
-        var incomes = _context.Transactions.Where(t => t.Type == TransactionType.Income).Sum (t => t.Amount);
-        var expenses = _context.Transactions.Where(t => t.Type == TransactionType.Expense) .Sum (t => t.Amount);
+        var result = await _context.Transactions
+            .Where(g => g.UserId == _userId)
+            .GroupBy(t => t.Type)
+            .Select(g => new {
+                Type = g.Key,
+                Total = g.Sum(t => t.Amount)
+        })
+        .ToListAsync();
+
+        var incomes = result.FirstOrDefault(x => x.Type == TransactionType.Income)?.Total ?? 0;
+        var expenses = result.FirstOrDefault(x => x.Type == TransactionType.Expense)?.Total ?? 0;
 
         FinancialSummaryDto summaryDto = new FinancialSummaryDto
         {
-            BiggestExpense = GetBiggestValue(),
+            BiggestExpense = await GetBiggestValue(),
             TotalExpense = expenses,
             TotalIncomes = incomes,
-            CurrentBalance = await GetCurrentBalance()
+            CurrentBalance = incomes - expenses
         };
 
         return summaryDto;
