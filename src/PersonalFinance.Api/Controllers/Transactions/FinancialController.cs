@@ -7,8 +7,9 @@ using PersonalFinance.Api.Data;
 namespace PersonalFinance.Api.Controllers.Transactions;
 
 /// <summary>
-/// Controller responsável por gerenciar as transações financeiras da API.
+/// Controller responsável por gerencia as movimentações financeiras, saldos e histórico do usuário.
 /// </summary>
+
 [Authorize]
 [ApiController]
 [Route("api/[controller]")]
@@ -23,22 +24,19 @@ public class FinancialController : ControllerBase
         _context = context;
     }
 
-
     /// <summary>
-    /// Retorna o saldo atual do usuário (receitas - despesas).
+    /// Calcula o saldo líquido total do usuário logado.
     /// </summary>
-
     [HttpGet("balance")]
-    public IActionResult GetBalance()
+    public async Task<IActionResult> GetBalance() 
     {
-        var balance = _service.GetCurrentBalance();
+        var balance = await _service.GetCurrentBalance();
         return Ok(balance);
     }
 
     /// <summary>
-    /// Retorna todas as transações, podendo filtrar por intervalo de datas.
+    /// Lista o histórico de transações com suporte a filtros de data e paginação.
     /// </summary>
-
     [HttpGet("all")]
     public async Task<IActionResult> GetHistory([FromQuery] DateTime? start, [FromQuery] DateTime? end, int pageNumber = 1, int pageSize = 10)
     {
@@ -48,9 +46,8 @@ public class FinancialController : ControllerBase
     }
 
     /// <summary>
-    /// Retorna o maior valor de despesa registrado.
+    /// Recupera o valor da maior despesa individual registrada.
     /// </summary>
-
     [HttpGet("biggest-expense")]
     public IActionResult GetBiggestExpense()
     {
@@ -59,9 +56,8 @@ public class FinancialController : ControllerBase
     }
 
     /// <summary>
-    /// Retorna uma transação filtrada pelo ID
+    /// Obtém os detalhes de uma transação específica através do ID.
     /// </summary>
-
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(int id)
     {
@@ -74,9 +70,8 @@ public class FinancialController : ControllerBase
     }
 
     /// <summary>
-    /// Retorna o resumo financeiro.
+    /// Retorna um resumo consolidado de receitas, despesas e saldo
     /// </summary>
-
     [HttpGet("financial-summary")]
     public IActionResult GetFinancialSumarry()
     {
@@ -89,10 +84,9 @@ public class FinancialController : ControllerBase
     }
 
     /// <summary>
-    /// Adiciona uma nova transação financeira.
+    /// Registra uma nova entrada ou saída financeira.
     /// </summary>
-
-    [HttpPost("{id}")]
+    [HttpPost]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> PostTransaction(CreateTransactionDto dto)
@@ -102,6 +96,9 @@ public class FinancialController : ControllerBase
         return Created("", created);
     }
 
+    /// <summary>
+    /// Popula o banco de dados com dados iniciais de teste (Apenas Desenvolvimento).
+    /// </summary>
     [HttpPost("seed")]
     public async Task<IActionResult> Seed()
     {
@@ -111,9 +108,8 @@ public class FinancialController : ControllerBase
     }
 
     /// <summary>
-    /// Atualiza uma transação existente pelo ID.
+    /// Altera os dados de uma transação existente.
     /// </summary>
-
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(int id, UpdateTransactionDto dto)
     {
@@ -126,9 +122,8 @@ public class FinancialController : ControllerBase
     }
 
     /// <summary>
-    /// Exclui uma transação pelo ID.
+    /// Remove permanentemente uma transação do histórico.
     /// </summary>
-
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteTransaction(int id)
     {

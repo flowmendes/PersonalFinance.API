@@ -6,8 +6,9 @@ using Microsoft.AspNetCore.Mvc;
 namespace PersonalFinance.Api.Controllers.Goals;
 
 /// <summary>
-/// Controller responsável por gerenciar as metas financeiras da API.
+/// Controller responsável por gerencia as metas financeiras dos usuários.
 /// </summary>
+
 [Authorize]
 [ApiController]
 [Route("api/[controller]")]
@@ -21,9 +22,8 @@ public class GoalController : ControllerBase
     }
 
     /// <summary>
-    /// Retorna todas as metas criadas
+    /// Lista todas as metas do usuário autenticado.
     /// </summary>
-
     [HttpGet("all")]
     public async Task<IActionResult> GetAllGoal()
     {
@@ -33,9 +33,8 @@ public class GoalController : ControllerBase
     }
 
     /// <summary>
-    /// Retorna uma meta filtrada pelo ID
+    /// Obtém os detalhes e o progresso de uma meta específica pelo ID.
     /// </summary>
-
     [HttpGet("{id}")]
     public async Task<IActionResult> GetGoalById(int id)
     {
@@ -48,9 +47,8 @@ public class GoalController : ControllerBase
     }
 
     /// <summary>
-    /// Atualiza uma meta existente pelo ID.
-    /// </summary>
-    
+    /// Atualiza as informações de uma meta existente.
+    /// </summary> 
     [HttpPut("{id}")]
     public async Task<IActionResult> PutGoal(int id, UpdateGoalDto dto)
     {
@@ -63,9 +61,8 @@ public class GoalController : ControllerBase
     }
 
     /// <summary>
-    /// Adiciona uma nova meta financeira.
+    /// Cria uma nova meta financeira para o usuário.
     /// </summary> 
-
     [HttpPost("goal")]
     public async Task<IActionResult> PostGoal(CreateGoalDto dto)
     {
@@ -78,9 +75,8 @@ public class GoalController : ControllerBase
     }
 
     /// <summary>
-    /// Exclui uma meta pelo ID.
+    /// Remove permanentemente uma meta do sistema.
     /// </summary>
-
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteGoalById(int id)
     {
