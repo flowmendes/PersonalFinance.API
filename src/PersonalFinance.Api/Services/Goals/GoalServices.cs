@@ -1,13 +1,11 @@
 using PersonalFinance.Api.Models.Transactions;
 using PersonalFinance.Api.Models.Goals;
-using PersonalFinance.Api.Models.Users;
 using PersonalFinance.Api.DTOs.Goals;
 using Microsoft.EntityFrameworkCore;
 using PersonalFinance.Api.Data;
 using System.Security.Claims;
 using System.Data;
 using BCrypt.Net;
-
 
 namespace PersonalFinance.Api.Services.Goals;
 
@@ -23,11 +21,9 @@ public class GoalServices : IGoalServices
         _userId = httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
     }
 
-
     /// <summary>
-    /// Adiciona meta ao banco de dados
+    /// Cria uma nova meta financeira vinculada ao usuário autenticado.
     /// </summary>
-
     public async Task<Goal?> AddGoal(CreateGoalDto dto)
     {
         if (string.IsNullOrEmpty(_userId))
@@ -40,7 +36,7 @@ public class GoalServices : IGoalServices
             TargetAmount = dto.TargetAmount,
             Deadline = dto.DeadLine,
             Type = dto.Type,
-            CreatedAt = DateTime.UtcNow
+            CreatedAt = DateTime.UtcNow // Define o início da contagem para o progresso da meta
         };
 
         _context.Goals.Add(createGoal);
@@ -50,13 +46,13 @@ public class GoalServices : IGoalServices
     }
 
     /// <summary>
-    /// Edita uma meta pelo ID informado.
+    /// Atualiza os dados de uma meta existente, validando a propriedade do usuário.
     /// </summary>
-
     public async Task<bool> PutGoal(int id, UpdateGoalDto dto)
     {
         var goal = await _context.Goals.FindAsync(id);
 
+        // Garante que a meta existe e pertence ao usuário logado
         if (goal == null || goal.UserId != _userId) 
             return false;
         
@@ -71,9 +67,8 @@ public class GoalServices : IGoalServices
     }
 
     /// <summary>
-    /// Deleta uma meta pelo ID informado.
+    /// Remove uma meta do banco de dados.
     /// </summary>
-    
     public async Task<bool> DeleteGoal(int id)
     {
         var goal = await _context.Goals.FindAsync(id);
@@ -88,26 +83,24 @@ public class GoalServices : IGoalServices
     }
 
     /// <summary>
-    /// Retorna a lista completa de metas:
+    /// Recupera todas as metas do usuário, incluindo os cálculos de progresso atualizados.
     /// </summary>
-    
     public async Task<List<ProgressGoalDto?>> GetAllGoals()
     {
         var goals = await _context.Goals
             .Where(g => g.UserId == _userId)
             .ToListAsync();
-        
-        var tasks = goals.Select(async g => await GetGoalProgresById(g.ID));
 
+        // Executa o processamento de progresso para cada meta de forma assíncrona
+        var tasks = goals.Select(async g => await GetGoalProgresById(g.ID));
         var results = await Task.WhenAll(tasks);
     
         return results.ToList();
     }
 
     /// <summary>
-    /// Retorna uma meta filtrada por ID.
+    /// Retorna os detalhes de uma meta específica e calcula o percentual de conclusão.
     /// </summary>
-    
     public async Task<ProgressGoalDto?> GetGoalProgresById(int id)
     {    
         var goal = await _context.Goals.FindAsync(id);
@@ -118,10 +111,11 @@ public class GoalServices : IGoalServices
         var goalBalance = await GetGoalNetBalance(goal);
         decimal progressPercentage = 0;
 
+        // Regra de Negócio: O progresso é a relação entre o saldo líquido do período e o valor alvo
         if (goal.TargetAmount > 0)
         {
             var actualPercentage = (goalBalance / goal.TargetAmount) * 100m;
-
+            // Garante que o progresso visual fique entre 0% e 100%
             progressPercentage = Math.Clamp(actualPercentage, 0m, 100m);
         }
 
@@ -137,9 +131,8 @@ public class GoalServices : IGoalServices
     }
 
     /// <summary>
-    /// Filtra as transações que ocorreram dentro do intervalo de tempo da meta.
+    /// Busca todas as transações realizadas entre a criação e o prazo final da meta.
     /// </summary>
-
     public async Task<List<Transaction>> GetGoalTransactions(Goal goal)
     {
         return await _context.Transactions
@@ -150,9 +143,8 @@ public class GoalServices : IGoalServices
     }
 
     /// <summary>
-    /// Calcula o saldo real da meta subtraindo despesas de receitas.
+    /// Realiza o cálculo do saldo líquido (Receitas - Despesas) dentro do período da meta.
     /// </summary>
-
     public async Task<decimal> GetGoalNetBalance(Goal goal)
     {
         List<Transaction> transactions = await GetGoalTransactions(goal);
@@ -164,9 +156,8 @@ public class GoalServices : IGoalServices
     } 
 
     /// <summary>
-    /// Calcula a porcentagem real de conclusão da meta.
+    /// Método auxiliar para cálculo direto de porcentagem de progresso.
     /// </summary>
-
     public async Task<decimal> GetGoalProgressPercentage(Goal goal)
     {
         decimal Balance = await GetGoalNetBalance(goal);
