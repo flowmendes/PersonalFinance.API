@@ -18,11 +18,9 @@ public class FinancialService : IFinancialService
         _userId = httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
     }
     
-
     /// <summary>
-    /// Adiciona transação ao banco de dados
+    /// Registra uma nova transação financeira vinculada ao usuário autenticado.
     /// </summary>
-
     public async Task<Transaction> AddTransaction(CreateTransactionDto dto)
     {
         if (string.IsNullOrEmpty(_userId))
@@ -46,9 +44,8 @@ public class FinancialService : IFinancialService
     }
 
     /// <summary>
-    /// Semeia o banco de dados
+    /// Gera dados fictícios para testes de performance e paginação.
     /// </summary>
-    
     public async Task SeedData(AppDbContext context)
     {
         var transactions = new List<Transaction>();
@@ -71,9 +68,8 @@ public class FinancialService : IFinancialService
     }
 
     /// <summary>
-    /// Edita uma transação pelo ID informado.
+    /// Atualiza os dados de uma transação, validando se ela pertence ao usuário logado.
     /// </summary>
-    
     public async Task<bool> PutTransaction(int id, UpdateTransactionDto dto)
     {
         var transaction = await _context.Transactions.FindAsync(id);
@@ -91,9 +87,8 @@ public class FinancialService : IFinancialService
     }
 
     /// <summary>
-    /// Deleta uma transação pelo ID informado.
+    /// Remove uma transação do banco de dados após validar a permissão do usuário.
     /// </summary>
-
     public async Task<bool> DeleteTransaction(int id)
     {
         var transaction = await _context.Transactions.FindAsync(id);
@@ -111,10 +106,8 @@ public class FinancialService : IFinancialService
     }
 
     /// <summary>
-    /// Retorna a lista de transações com filtros opcionais por:
-    /// intervalo de datas, busca por descrição e ordenação.
+    /// Retorna o histórico de transações com suporte a filtros, busca, ordenação e paginação.
     /// </summary>
-
     public async Task <List<Transaction>> GetAllTransactions(
         DateTime? startDate = null, 
         DateTime? endDate = null, 
@@ -127,19 +120,18 @@ public class FinancialService : IFinancialService
         .Where(t => t.UserId == _userId)
         .AsQueryable();
 
-        // Aplica filtro por data inicial (>=)
+        // Filtro de datas
         if (startDate.HasValue)
-            query = query.Where(t => t.CreateAt >= startDate.Value);
+            query = query.Where(t => t.CreateAt >= startDate.Value); // Aplica filtro por data inicial (>=)
 
-        // Aplica filtro por data final (<=)
         if (endDate.HasValue)
-            query = query.Where(t => t.CreateAt <= endDate.Value);
+            query = query.Where(t => t.CreateAt <= endDate.Value); // Aplica filtro por data final (<=)
 
-        // Aplica filtro por descrição (busca parcial)
+        // Busca textual parcial na descrição
         if (!string.IsNullOrEmpty(searchTerm))
             query = query.Where(t => t.Description.Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
 
-        // Aplica ordenação dinâmica conforme parâmetro informado
+        // Lógica de ordenação dinâmica
         if (!string.IsNullOrEmpty(sortBy))
         {
             switch (sortBy.ToLower())
@@ -180,9 +172,8 @@ public class FinancialService : IFinancialService
     }
 
     /// <summary>
-    ///  Calcula o saldo atual (receita - despesa).
+    ///  Calcula o saldo líquido total (Entradas - Saídas) do usuário.
     /// </summary>
-    
     public async Task<decimal> GetCurrentBalance()
     {
         var result = await _context.Transactions
@@ -201,20 +192,19 @@ public class FinancialService : IFinancialService
     }
 
     /// <summary>
-    /// Retorna o maior valor entre as despesas.
+    /// Identifica o maior valor de despesa registrado pelo usuário.
     /// </summary>
-    
     public async Task<decimal> GetBiggestValue()
     {
-        var biggestValue = _context.Transactions.Where(t => t.Type == TransactionType.Expense).Max (t => (decimal?)t.Amount) ?? 0;
-        
-        return biggestValue;
+        // Uso de MaxAsync para evitar bloqueio de thread
+        return await _context.Transactions
+            .Where(t => t.UserId == _userId && t.Type == TransactionType.Expense)
+            .MaxAsync(t => (decimal?)t.Amount) ?? 0;
     }
 
     /// <summary>
-    /// Retorna uma Transação filtrada por ID.
+    /// Busca uma transação específica validando o isolamento de dados por usuário.
     /// </summary>
-    
     public async Task<Transaction?> GetTransactionById(int id)
     {
         var result = _context.Transactions.Find(id);
@@ -226,11 +216,11 @@ public class FinancialService : IFinancialService
     }
 
     /// <summary>
-    /// Retorna o resumo financeiro.
+    /// Consolida as estatísticas financeiras gerais em um objeto de resumo.
     /// </summary>
-    
     public async Task<FinancialSummaryDto> GetFinancialSumarry()
     {
+        // Busca os totais para evitar múltiplas chamadas ao banco
         var result = await _context.Transactions
             .Where(g => g.UserId == _userId)
             .GroupBy(t => t.Type)
