@@ -6,7 +6,6 @@ using PersonalFinance.Api.Data;
 using System.Security.Claims;
 using System.Data;
 using BCrypt.Net;
-using PersonalFinance.Api.Models.Users;
 
 namespace PersonalFinance.Api.Services.Goals;
 
@@ -149,8 +148,17 @@ public class GoalServices : IGoalServices
     /// </summary>
     public async Task<GoalStatus?> GetGoalStatus(int Id)
     {
+        var result = await _context.Goals.FindAsync(Id);
+
+        if (result == null || result.UserId != _userId)
+            return null;
+
+        return result.Status;
     }
 
+    /// <summary>
+    /// Altera o status atual da meta para Canceled
+    /// </summary>
     public async Task<bool> CancelGoal(int Id)
     {
         var goal = await _context.Goals.FindAsync(Id);
@@ -168,6 +176,9 @@ public class GoalServices : IGoalServices
         return true;
     }
 
+    /// <summary>
+    /// Altera o status atual da meta para Paused.
+    /// </summary>
     public async Task<bool> PauseGoal(int Id)
     {
         var goal = await _context.Goals.FindAsync(Id);
@@ -184,8 +195,6 @@ public class GoalServices : IGoalServices
 
         return true;
     }
-    
-    
 
     /// <summary>
     /// Realiza o cálculo do saldo líquido (Receitas - Despesas) dentro do período da meta.
@@ -205,11 +214,32 @@ public class GoalServices : IGoalServices
     /// </summary>
     public async Task<decimal> GetGoalProgressPercentage(Goal goal)
     {
-        decimal Balance = await GetGoalNetBalance(goal);
+        decimal balance = await GetGoalNetBalance(goal);
 
-        if (goal.TargetAmount == 0) return 0;
-        if (Balance > goal.TargetAmount) return 100;
-        
-        return Balance / goal.TargetAmount * 100m;
+        if (goal.TargetAmount <= 0) 
+            return 0;
+
+        var persentage = balance / goal.TargetAmount * 100m;
+
+        // Se o progresso atingiu ou passou de 100%, verificamos a atualização do status
+        if (balance >= goal.TargetAmount)
+        {
+            await UpdateGoalStatusIfFinished(goal, persentage);
+            return 100;
+        }
+        // Retorna a porcentagem real (ou 0 caso o saldo seja negativo)
+        return Math.Max(0, persentage);
+    }
+
+    /// <summary>
+    /// Verifica e atualiza o status da meta com base no progresso atual.
+    /// </summary>
+    public async Task UpdateGoalStatusIfFinished(Goal goal, decimal TargetAmount)
+    {
+        if (TargetAmount >= 100 && goal.Status != GoalStatus.Finished)
+        {
+            goal.Status = GoalStatus.Finished;
+            await _context.SaveChangesAsync();
+        }
     }
 }
