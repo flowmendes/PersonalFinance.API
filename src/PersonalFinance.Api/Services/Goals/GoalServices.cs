@@ -6,6 +6,7 @@ using PersonalFinance.Api.Data;
 using System.Security.Claims;
 using System.Data;
 using BCrypt.Net;
+using PersonalFinance.Api.Models.Users;
 
 namespace PersonalFinance.Api.Services.Goals;
 
@@ -36,7 +37,8 @@ public class GoalServices : IGoalServices
             TargetAmount = dto.TargetAmount,
             Deadline = dto.DeadLine,
             Type = dto.Type,
-            CreatedAt = DateTime.UtcNow // Define o início da contagem para o progresso da meta
+            CreatedAt = DateTime.UtcNow, // Define o início da contagem para o progresso da meta
+            Status = GoalStatus.Pending  // Define o status inícial da meta
         };
 
         _context.Goals.Add(createGoal);
@@ -141,6 +143,33 @@ public class GoalServices : IGoalServices
             .Where(t => t.CreateAt <= goal.Deadline.Date)
             .ToListAsync();
     }
+
+    /// <summary>
+    /// Realiza o cálculo e define o status atual da meta.
+    /// </summary>
+    public async Task<GoalStatus?> GetGoalStatus(string Id)
+    {
+    }
+
+    public async Task<bool> CancelGoal(string Id, UpdateGoalDto dto)
+    {
+        var goal = await _context.Goals.FindAsync(Id);
+
+        if (goal == null || goal.UserId != _userId)
+            return false;
+
+        goal.Status = GoalStatus.Canceled;
+
+        await _context.SaveChangesAsync();
+
+        return true;
+    }
+
+    public Task<bool> PauseGoal(string Id)
+    {
+    }
+    
+    
 
     /// <summary>
     /// Realiza o cálculo do saldo líquido (Receitas - Despesas) dentro do período da meta.

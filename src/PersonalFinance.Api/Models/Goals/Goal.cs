@@ -34,4 +34,6 @@ public class Goal
     public TypeOfGoal Type { get; set; } // Tipo de Meta
     
     public DateTime CreatedAt { get; set; }
+
+    public GoalStatus Status { get; set; }
 }
