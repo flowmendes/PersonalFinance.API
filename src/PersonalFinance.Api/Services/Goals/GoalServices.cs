@@ -147,16 +147,19 @@ public class GoalServices : IGoalServices
     /// <summary>
     /// Realiza o cálculo e define o status atual da meta.
     /// </summary>
-    public async Task<GoalStatus?> GetGoalStatus(string Id)
+    public async Task<GoalStatus?> GetGoalStatus(int Id)
     {
     }
 
-    public async Task<bool> CancelGoal(string Id, UpdateGoalDto dto)
+    public async Task<bool> CancelGoal(int Id)
     {
         var goal = await _context.Goals.FindAsync(Id);
 
         if (goal == null || goal.UserId != _userId)
             return false;
+
+        if (goal.Status == GoalStatus.Canceled)
+            return true;
 
         goal.Status = GoalStatus.Canceled;
 
@@ -165,8 +168,21 @@ public class GoalServices : IGoalServices
         return true;
     }
 
-    public Task<bool> PauseGoal(string Id)
+    public async Task<bool> PauseGoal(int Id)
     {
+        var goal = await _context.Goals.FindAsync(Id);
+
+        if (goal == null || goal.UserId != _userId)
+            return false;
+
+        if (goal.Status == GoalStatus.Paused)
+            return true;
+
+        goal.Status = GoalStatus.Paused;
+
+        await _context.SaveChangesAsync();
+
+        return true;
     }
     
     
