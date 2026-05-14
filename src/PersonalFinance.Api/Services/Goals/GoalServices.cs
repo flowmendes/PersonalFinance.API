@@ -242,4 +242,18 @@ public class GoalServices : IGoalServices
             await _context.SaveChangesAsync();
         }
     }
+
+    private bool ValidGoal(Goal? goal)
+    {
+        if (goal == null)
+            return false;
+        
+        if (goal.UserId != _userId)
+            return false;
+        
+        if (goal.Status == GoalStatus.Canceled || goal.Status == GoalStatus.Finished)
+            return false;
+        
+        return true;
+    }
 }
