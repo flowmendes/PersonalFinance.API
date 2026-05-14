@@ -9,4 +9,6 @@ public interface IGoalServices
     Task<ProgressGoalDto?> GetGoalProgresById(int id);
     Task<bool> DeleteGoal(int id);
     Task<bool> PutGoal(int id, UpdateGoalDto dto);
+    Task<bool> PauseGoal(int Id);
+    Task<bool> CancelGoal(int Id);
 }

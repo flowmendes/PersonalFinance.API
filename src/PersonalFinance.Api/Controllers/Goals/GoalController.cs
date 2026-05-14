@@ -41,7 +41,7 @@ public class GoalController : ControllerBase
         var goal = await _goalService.GetGoalProgresById(id);
 
         if (goal == null)
-            return NotFound();
+            return NotFound(new { message = "Meta não encontrada ou acesso negado." });
 
         return Ok(goal);
     }
@@ -54,11 +54,38 @@ public class GoalController : ControllerBase
     {
         var goal = await _goalService.PutGoal(id, dto);
 
-        if (goal == false)
-            return NotFound();
+        if (!goal)
+            return NotFound(new { message = "Meta não encontrada ou acesso negado." });
         
         return NoContent();
     }
+
+    /// <summary>
+    /// Cancela a meta e altera o status para (Canceled).
+    /// </summary>
+    [HttpPut("{id}/cancel")]
+    public async Task<IActionResult> CancelGoal(int id)
+    {
+        var result = await _goalService.CancelGoal(id);
+
+        if (!result)
+            return NotFound(new { message = "Meta não encontrada ou acesso negado." });
+            
+        return NoContent();
+    }
+
+    /// <summary>
+    /// Pausa a meta e altera o status para (Paused).
+    /// </summary>
+    [HttpPut("{id}/pause")]
+    public async Task<IActionResult> PauseGoal(int id)
+    {
+        var result = await _goalService.PauseGoal(id);
+        if (!result)
+            return NotFound(new { message = "Meta não encontrada ou acesso negado." });
+        
+        return NoContent();
+    }       
 
     /// <summary>
     /// Cria uma nova meta financeira para o usuário.
@@ -82,7 +109,7 @@ public class GoalController : ControllerBase
     {
         var deleted = await _goalService.DeleteGoal(id);
 
-        if(deleted == false)
+        if(!deleted)
             return NotFound();
 
         return NoContent();
