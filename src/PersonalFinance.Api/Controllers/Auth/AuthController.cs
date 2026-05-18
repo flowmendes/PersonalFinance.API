@@ -25,12 +25,27 @@ public class AuthController : ControllerBase
     [HttpPost("register")]
     public async Task<IActionResult> RegisterUser(CreateUserDto dto)
     {
-        var createUser = await _authServices.RegisterUser(dto);
+        try
+        {
+            var createUser = await _authServices.RegisterUser(dto);
+            
+            var response = new
+            {
+                userId = createUser.UserId,
+                userNeme = createUser.UserName,
+                email = createUser.Email
+            };
 
-        if (createUser == null)
-            return BadRequest("Não foi possível realizar o cadastro.");
-
-        return Created();
+            return Created(string.Empty, response);
+        }
+        catch (InvalidOperationException)
+        {
+            return Conflict(new { message = "O e-mail já está em uso."});
+        }
+        catch (Exception)
+        {
+            return StatusCode(500, new { message = "Erro interno no servidor ao processar o cadastro." });
+        }
     }
 
     /// <summary>

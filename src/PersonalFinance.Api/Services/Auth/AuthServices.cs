@@ -39,6 +39,9 @@ public class AuthServices : IAuthServices
     /// </summary>
     public async Task<User> RegisterUser(CreateUserDto dto)
     {
+        if (await ValidateEmail(dto.Email))
+            throw new InvalidOperationException("Este e-mail já está cadastrado. ");
+
         var guid = Guid.NewGuid().ToString();
 
         var createUser = new User
@@ -112,5 +115,10 @@ public class AuthServices : IAuthServices
     public async Task<User?> GetUserById(int id)
     {
         return await _context.Users.FindAsync(id);
+    }
+
+    private async Task<bool> ValidateEmail(string email)
+    {
+        return await _context.Users.AnyAsync(e => e.Email == email);
     }
 }
