@@ -54,10 +54,10 @@ public class GoalServices : IGoalServices
         var goal = await _context.Goals.FindAsync(id);
 
         // Garante que a meta existe e pertence ao usuário logado
-        if (goal == null || goal.UserId != _userId) 
+        if (ValidGoal(goal)) 
             return false;
         
-        goal.Title = dto.Title;
+        goal!.Title = dto.Title;
         goal.TargetAmount = dto.TargetAmount;
         goal.Deadline = dto.DeadLine;
         goal.Type = dto.Type;
@@ -74,10 +74,10 @@ public class GoalServices : IGoalServices
     {
         var goal = await _context.Goals.FindAsync(id);
 
-        if (goal == null || goal.UserId != _userId) 
+        if (ValidGoal(goal)) 
             return false;
 
-        _context.Goals.Remove(goal);
+        _context.Goals.Remove(goal!);
         await _context.SaveChangesAsync();
 
         return true;
@@ -183,10 +183,10 @@ public class GoalServices : IGoalServices
     {
         var goal = await _context.Goals.FindAsync(Id);
 
-        if (goal == null || goal.UserId != _userId)
+        if (ValidGoal(goal) == false)
             return false;
 
-        if (goal.Status == GoalStatus.Paused)
+        if (goal!.Status == GoalStatus.Paused)
             return true;
 
         goal.Status = GoalStatus.Paused;
