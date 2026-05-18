@@ -243,6 +243,9 @@ public class GoalServices : IGoalServices
         }
     }
 
+    /// <summary>
+    /// Verifica se a meta e valida para uso.
+    /// </summary>
     private bool ValidGoal(Goal? goal)
     {
         if (goal == null)
