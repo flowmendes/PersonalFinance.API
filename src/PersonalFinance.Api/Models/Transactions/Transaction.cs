@@ -31,4 +31,6 @@ public class Transaction
     public DateTime CreateAt { get; set; }
 
     public TransactionType Type { get; set; }
+
+    public int GoalId { get; set; }
 }
