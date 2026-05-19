@@ -243,4 +243,17 @@ public class FinancialService : IFinancialService
 
         return summaryDto;
     }
+
+    private async Task<bool> ValidGoal(int id)
+    {
+        var goal = await _context.Goals.FindAsync(id);
+
+        if (goal == null || goal.UserId != _userId)
+            throw new KeyNotFoundException("A meta informada não foi encontrada ou não pertence a este usuário.");
+
+        if (goal.Status == Models.Goals.GoalStatus.Finished || goal.Status == Models.Goals.GoalStatus.Canceled)
+            throw new InvalidOperationException("Não é possível vincular transações a uma meta concluída ou cancelada.");
+
+        return true;
+    }
 }
