@@ -28,6 +28,9 @@ public class FinancialService : IFinancialService
             throw new UnauthorizedAccessException("Unidentified user");
         }
 
+        if (dto.GoalId.HasValue)
+            await ValidGoal(dto.GoalId.Value);
+
         var createTransaction = new Transaction
         {
             UserId = _userId,
@@ -244,6 +247,9 @@ public class FinancialService : IFinancialService
         return summaryDto;
     }
 
+    /// <summary>
+    /// Busca uma meta enviada pelo usuário, caso seja invalida retorna erro.
+    /// </summary>
     private async Task<bool> ValidGoal(int id)
     {
         var goal = await _context.Goals.FindAsync(id);

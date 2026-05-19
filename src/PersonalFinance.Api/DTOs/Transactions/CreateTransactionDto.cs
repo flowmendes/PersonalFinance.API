@@ -16,4 +16,6 @@ public class CreateTransactionDto
     [Required(ErrorMessage = "O tipo da transação é obrigatório")]
     [EnumDataType(typeof(TransactionType), ErrorMessage = "Tipo de meta inválido.")]
     public TransactionType Type { get; set; }
+
+    public int? GoalId { get; set; }
 }

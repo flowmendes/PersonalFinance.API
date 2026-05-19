@@ -87,13 +87,35 @@ public class FinancialController : ControllerBase
     /// Registra uma nova entrada ou saída financeira.
     /// </summary>
     [HttpPost]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> PostTransaction(CreateTransactionDto dto)
     {
-        var created = await _service.AddTransaction(dto);
+        try
+        {
+            var created = await _service.AddTransaction(dto);
 
-        return Created("", created);
+            return Created(string.Empty, created);
+        } 
+        catch (KeyNotFoundException)
+        {
+            return NotFound(new { message = "A meta informada não foi encontrada ou não pertence a este usuário."});
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Unauthorized(new { message = "Usuário não autenticado ou sessão expirada." });
+        }
+        catch (InvalidOperationException)
+        {
+            return BadRequest(new { message = "Não é possível vincular transações a uma meta concluída ou cancelada."});
+        }
+        catch (Exception)
+        {
+            return StatusCode(500, new { message = "Erro interno ao salvar a transação." });
+        }
     }
 
     /// <summary>
