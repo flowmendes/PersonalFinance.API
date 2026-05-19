@@ -100,17 +100,17 @@ public class FinancialController : ControllerBase
 
             return Created(string.Empty, created);
         } 
-        catch (KeyNotFoundException)
+        catch (InvalidOperationException)
         {
-            return NotFound(new { message = "A meta informada não foi encontrada ou não pertence a este usuário."});
+            return BadRequest(new { message = "Não é possível vincular transações a uma meta concluída ou cancelada."});
         }
         catch (UnauthorizedAccessException)
         {
             return Unauthorized(new { message = "Usuário não autenticado ou sessão expirada." });
         }
-        catch (InvalidOperationException)
+        catch (KeyNotFoundException)
         {
-            return BadRequest(new { message = "Não é possível vincular transações a uma meta concluída ou cancelada."});
+            return NotFound(new { message = "A meta informada não foi encontrada ou não pertence a este usuário."});
         }
         catch (Exception)
         {
