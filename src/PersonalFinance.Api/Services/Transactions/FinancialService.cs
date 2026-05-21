@@ -24,9 +24,8 @@ public class FinancialService : IFinancialService
     public async Task<Transaction> AddTransaction(CreateTransactionDto dto)
     {
         if (string.IsNullOrEmpty(_userId))
-        {
             throw new UnauthorizedAccessException("Unidentified user");
-        }
+        
 
         if (dto.GoalId.HasValue)
             await ValidGoal(dto.GoalId.Value);
@@ -261,5 +260,12 @@ public class FinancialService : IFinancialService
             throw new InvalidOperationException("Não é possível vincular transações a uma meta concluída ou cancelada.");
 
         return true;
+    }
+
+    private async Task<bool> DepositGoal (int id, decimal value)
+    {
+        var goal = await _context.Goals.FindAsync(id);
+
+        goal.CurrentValue = value;
     }
 }
