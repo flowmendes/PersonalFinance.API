@@ -32,5 +32,5 @@ public class Transaction
 
     public TransactionType Type { get; set; }
 
-    public int GoalId { get; set; }
+    public int? GoalId { get; set; }
 }

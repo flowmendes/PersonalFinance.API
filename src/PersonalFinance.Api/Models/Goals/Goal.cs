@@ -28,8 +28,6 @@ public class Goal
 
     [Column(TypeName = "decimal(18,2)")]
     public decimal TargetAmount { get; set; } // Valor alvo
-
-    public decimal CurrentValue { get; set; }
     
     public DateTime Deadline { get; set; } // prazo
 

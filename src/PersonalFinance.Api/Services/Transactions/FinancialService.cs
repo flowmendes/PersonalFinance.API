@@ -3,6 +3,7 @@ using PersonalFinance.Api.DTOs.Transactions;
 using Microsoft.EntityFrameworkCore;
 using PersonalFinance.Api.Data;
 using System.Security.Claims;
+using PersonalFinance.Api.Models.Goals;
 
 namespace PersonalFinance.Api.Services.Transactions;
 
@@ -26,9 +27,9 @@ public class FinancialService : IFinancialService
         if (string.IsNullOrEmpty(_userId))
             throw new UnauthorizedAccessException("Unidentified user");
         
-
         if (dto.GoalId.HasValue)
             await ValidGoal(dto.GoalId.Value);
+            
 
         var createTransaction = new Transaction
         {
@@ -36,7 +37,8 @@ public class FinancialService : IFinancialService
             Description = dto.Description,
             Amount = dto.Amount,
             Type = dto.Type,
-            CreateAt = DateTime.UtcNow
+            CreateAt = DateTime.UtcNow,
+            GoalId = dto.GoalId
         };
 
         await _context.Transactions.AddAsync(createTransaction);
@@ -260,12 +262,5 @@ public class FinancialService : IFinancialService
             throw new InvalidOperationException("Não é possível vincular transações a uma meta concluída ou cancelada.");
 
         return true;
-    }
-
-    private async Task<bool> DepositGoal (int id, decimal value)
-    {
-        var goal = await _context.Goals.FindAsync(id);
-
-        goal.CurrentValue = value;
     }
 }

@@ -140,6 +140,7 @@ public class GoalServices : IGoalServices
             .Where(t => t.UserId == _userId)
             .Where(t => t.CreateAt >= goal.CreatedAt.Date)
             .Where(t => t.CreateAt <= goal.Deadline.Date)
+            .Where(t => t.GoalId == goal.ID)
             .ToListAsync();
     }
 
@@ -201,12 +202,13 @@ public class GoalServices : IGoalServices
     /// </summary>
     public async Task<decimal> GetGoalNetBalance(Goal goal)
     {
-        List<Transaction> transactions = await GetGoalTransactions(goal);
+        // Faz a conta direto no banco de dados e traz apenas o número final para a memória
+        var netBalance = await _context.Transactions
+            .Where(t => t.UserId == _userId && t.GoalId == goal.ID)
+            .SumAsync(t => t.Type == TransactionType.Income ? t.Amount : -t.Amount);
 
-        var Income = transactions.Where(t => t.Type == TransactionType.Income).Sum(t => t.Amount);
-        var Expense = transactions.Where(t => t.Type == TransactionType.Expense).Sum(t => t.Amount);
-
-        return Income - Expense;
+        // Garante que o saldo nunca seja negativo
+        return Math.Max(0m, netBalance);
     } 
 
     /// <summary>
