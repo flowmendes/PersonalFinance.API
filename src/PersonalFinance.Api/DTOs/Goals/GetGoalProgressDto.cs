@@ -11,4 +11,6 @@ public class ProgressGoalDto
     public DateTime CreateAt { get; set; }
     public decimal Progress { get; set; } 
     public decimal NetBalance { get; set; }
+    public GoalStatus Status { get; set; }
 }
+

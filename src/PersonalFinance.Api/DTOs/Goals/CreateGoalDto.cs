@@ -20,4 +20,5 @@ public class CreateGoalDto
     [Required(ErrorMessage = "O tipo de meta é obrigatório.")]
     [EnumDataType(typeof(TypeOfGoal), ErrorMessage = "Tipo de meta inválido.")]
     public TypeOfGoal Type { get; set; }
+    public GoalStatus Status { get; set; }
 }
