@@ -129,6 +129,7 @@ public class GoalServices : IGoalServices
             Type = goal.Type,
             NetBalance = Math.Round(goalBalance, 2),
             Progress = Math.Round(progressPercentage, 2),
+            Status = goal.Status
         };
     }
 
@@ -261,18 +262,5 @@ public class GoalServices : IGoalServices
             return false;
         
         return true;
-    }
-
-    public async Task<GoalStatus?> TestGetStatus(int id)
-    {
-        var result = await _context.Goals.FindAsync(id);
-
-        if (result == null)
-            return null;
-
-        if (result.UserId != _userId)
-            return null;
-
-        return result.Status;
     }
 }

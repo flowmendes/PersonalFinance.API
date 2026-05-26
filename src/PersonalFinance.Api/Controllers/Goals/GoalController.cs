@@ -114,15 +114,4 @@ public class GoalController : ControllerBase
 
         return NoContent();
     }
-
-    [HttpGet]
-    public async Task<IActionResult> TestGetStatus(int id)
-    {
-        var result = await _goalService.TestGetStatus(id);
-
-        if (result == null)
-            return NotFound();
-
-        return Ok(result);
-    }
 }
