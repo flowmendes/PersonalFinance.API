@@ -11,4 +11,5 @@ public interface IGoalServices
     Task<bool> PutGoal(int id, UpdateGoalDto dto);
     Task<bool> PauseGoal(int Id);
     Task<bool> CancelGoal(int Id);
+    Task<GoalStatus?> TestGetStatus(int id);
 }

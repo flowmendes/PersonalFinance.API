@@ -6,6 +6,7 @@ using PersonalFinance.Api.Data;
 using System.Security.Claims;
 using System.Data;
 using BCrypt.Net;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace PersonalFinance.Api.Services.Goals;
 
@@ -260,5 +261,18 @@ public class GoalServices : IGoalServices
             return false;
         
         return true;
+    }
+
+    public async Task<GoalStatus?> TestGetStatus(int id)
+    {
+        var result = await _context.Goals.FindAsync(id);
+
+        if (result == null)
+            return null;
+
+        if (result.UserId != _userId)
+            return null;
+
+        return result.Status;
     }
 }
