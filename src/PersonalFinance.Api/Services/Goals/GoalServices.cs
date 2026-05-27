@@ -252,15 +252,22 @@ public class GoalServices : IGoalServices
     /// </summary>
     private bool ValidGoal(Goal? goal)
     {
+        // 1. Se a meta não existe
         if (goal == null)
             return false;
         
+        // 2. Se a meta não pertence ao usuário logado
         if (goal.UserId != _userId)
             return false;
-        
+
+        // 3. Se a meta já foi explicitamente encerrada (Cancelada ou Concluída)
         if (goal.Status == GoalStatus.Canceled || goal.Status == GoalStatus.Finished)
             return false;
-        
-        return true;
+
+        // 4. Se o status já estiver salvo como Overdue OU se o prazo já passou do momento atual (Atrasada)
+        if (goal.Status == GoalStatus.Overdue || goal.Deadline < DateTime.Now)
+            return false;
+
+        return true; // Meta encontrada, do usuário, aberta e dentro do prazo!
     }
 }
