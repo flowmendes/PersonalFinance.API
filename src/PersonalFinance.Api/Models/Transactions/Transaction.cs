@@ -23,14 +23,14 @@ public class Transaction
 
     [Required]
     [MaxLength(100)]
-    public string Description { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty; 
 
     [Column(TypeName = "decimal(18,2)")]
-    public decimal Amount { get; set; }
+    public decimal Amount { get; set; } // Valor
 
-    public DateTime CreateAt { get; set; }
+    public DateTime CreateAt { get; set; } // Data de criação
 
-    public TransactionType Type { get; set; }
+    public TransactionType Type { get; set; } // Tipo de transação
 
-    public int? GoalId { get; set; }
+    public int? GoalId { get; set; } // Opcional, Id da meta
 }
