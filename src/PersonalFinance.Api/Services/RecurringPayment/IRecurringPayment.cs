@@ -1,0 +1,1 @@
+namespace PersonalFinance.Api.Services.RecurringPayment;
